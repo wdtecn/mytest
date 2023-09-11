@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AJAX调用Java API页面</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.0/css/bootstrap.min.css">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+        .form-inline {
+            margin-bottom: 20px;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .modal {
+            width: 100%;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            position: absolute;
+            display: none;
+        }
+        .modal .form {
+            width: 500px;
+            height: 300px;
+            background-color: #fff;
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal .form input {
+            width: 100%;
+            height: 35px;
+            margin-bottom: 20px;
+        }
+        .modal div span:nth-of-type(2) {
+            float: right;
+        }
+        .modal .form div:nth-of-type(4) {
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<!-- 模态窗 -->
+<div class="modal">
+    <div class="form">
+        <!-- 隐式接收修改的id值用于修改 -->
+        <input type="hidden" value="" id="idE" name="idE" class="active">
+        <div><span>编辑</span></div>
+        <hr>
+        <div><input type="text" class="form-control" id="colAE" name="colAE" placeholder="colA"></div>
+        <select id="colBE" name="colBE" class="form-control">
+            <option value="true">true</option>
+            <option value="false">false</option>
+        </select>
+        <div><input type="datetime-local" class="form-control" id="colCE" name="colCE" placeholder="colC"></div>
+        <div><button class="closeModal">关闭</button>&emsp;&emsp;<button class="addInfo">确认</button></div>
+    </div>
+</div>
+<div class="container">
+    <h1>demo</h1>
+    <form class="form-inline" id="add-form">
+        <div class="form-group">
+            <label for="colA">colA：</label>
+            <input type="text" class="form-control" id="colA" name="colA" required>
+        </div>
+        <div class="form-group">
+            <label for="colB">colB：</label>
+            <select id="colB" name="colB" class="form-control">
+                <option value="true">true</option>
+                <option value="false">false</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="colC">colC：</label>
+            <input type="datetime-local" class="form-control" id="colC" name="colC" >
+        </div>
+        <button type="submit" class="btn btn-primary">添加</button>
+    </form>
+    <input type="text" class="form-control" id="colAQ" placeholder="colA">
+    <select id="colBQ" class="form-control" placeholder="colB">
+        <option value="">请选择</option>
+        <option value="true">true</option>
+        <option value="false">false</option>
+    </select>
+    <button id="submit" class="btn btn-primary">查询</button>
+    <table class="table table-striped" id="demo-table">
+        <thead>
+        <tr>
+            <th>id</th>
+            <th>colA</th>
+            <th>colB</th>
+            <th>colC</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td colspan="5" class="text-center">暂无数据</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.0/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(function() {
+        show();
+        // 添加数据
+        $('#add-form').submit(function(event) {
+            event.preventDefault();
+            var colA = $('#colA').val();
+            var colB = $('#colB').val();
+            var colC = $('#colC').val();
+            $.ajax({
+                type: 'post',
+                url:'/demo/add',
+                contentType:'application/json',
+                data: JSON.stringify({
+                    colA:colA,
+                    colB:colB,
+                    colC:colC
+                }),
+                success:function (data) {
+                    location.reload();
+                }
+            })
+        });
+
+        // 查询数据
+        $("#submit").on('click', function() {
+            query()
+        });
+
+        //修改
+        $("#demo-table").on('click', '.update', function() {
+            //模态窗显示隐藏
+            showWindow($(this))
+        });
+
+        $(".addInfo").click(function() {
+
+            updateInfo();
+
+            //关闭模态窗
+            closeModal();
+
+        })
+
+        //param:修改的id
+        function updateInfo() {
+            var id = $("#idE").val();
+            var colA = $("#colAE").val();
+            var colB = $("#colBE").val();
+            var colC = $("#colCE").val();
+
+            $.ajax({
+                type: 'post',
+                url:'/demo/edit',
+                contentType:'application/json',
+                data: JSON.stringify({
+                    id:id,
+                    colA:colA,
+                    colB:colB,
+                    colC:colC
+                }),
+                success:function (data) {
+                    location.reload();
+                }
+            })
+
+            //重新渲染
+            show();
+        }
+
+        function showWindow(param) {
+            //添加
+            $(".modal").fadeIn();
+
+            //修改
+            if (param != undefined) {
+                debugger;
+                var id = param.parent().parent().children().eq(0).text();
+                var colA = param.parent().parent().children().eq(1).text();
+                var colB = param.parent().parent().children().eq(2).text();
+                var colC = param.parent().parent().children().eq(3).text();
+                //反写
+                $("#idE").val(id);
+                $("#colAE").val(colA);
+                $("#colBE").val(colB);
+                $("#colCE").val(colC);
+            }
+        }
+
+        //关闭窗口
+        $(".closeModal").click(function() {
+            closeModal();
+        })
+
+        function closeModal() {
+            $(".modal").fadeOut();
+            //关闭后清空表单
+            $("#colA").val("");
+            $("#colB").val("");
+            $("#colC").val("");
+        }
+
+        //删除
+        $("#demo-table").on('click', '.del', function() {
+            if (confirm("确认删除吗?")) {
+                //获取id值
+                var id = $(this).parent().parent().children().eq(0).text();
+
+                $.ajax({
+                    type: 'get',
+                    url:'/demo/del',
+                    data: {
+                        id:id
+                    },
+                    success:function (data) {
+                        //渲染
+                        show();
+                    }
+                })
+            }
+        });
+
+        function show() {
+            $.get('/demo/list', $(this).serialize(), function(data) {
+                var html = '';
+                if (data.data.length > 0) {
+                    for (var i = 0; i < data.data.length; i++) {
+                        html += '<tr><td>' + data.data[i].id + '</td><td>' + data.data[i].colA + '</td><td>' + data.data[i].colB + '</td><td>' + data.data[i].colC + '</td><td>' + '<button class="update">修改</button><button class="del">删除</button>' + '</td></tr>';
+                    }
+                } else {
+                    html = '<tr><td colspan="5" class="text-center">没有找到匹配的数据</td></tr>';
+                }
+                $('#demo-table tbody').html(html);
+            });
+        }
+
+        function query() {
+            var colA = $("#colAQ").val();
+            var colB = $("#colBQ").val();
+            $.ajax({
+                type: 'get',
+                url:'/demo/list',
+                data: {
+                    colA:colA,
+                    colB:colB
+                },
+                success:function (data) {
+                    var html = '';
+                    if (data.data.length > 0) {
+                        for (var i = 0; i < data.data.length; i++) {
+                            html += '<tr><td>' + data.data[i].id + '</td><td>' + data.data[i].colA + '</td><td>' + data.data[i].colB + '</td><td>' + data.data[i].colC + '</td><td>' + '<button class="update">修改</button><button class="del">删除</button>' + '</td></tr>';
+                        }
+                    } else {
+                        html = '<tr><td colspan="5" class="text-center">没有找到匹配的数据</td></tr>';
+                    }
+                    $('#demo-table tbody').html(html);
+                }
+            })
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  servlet:
+    # 应用的访问路径
+    context-path: /
+
+# 配置 MySQL
+spring:
+  datasource:
+    username: wdtecn
+    password: qwer12345WD@
+    url: jdbc:mysql://47.94.174.7:3306/mytest?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=GMT%2B8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+# 配置 MyBatis
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.wdtecn.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

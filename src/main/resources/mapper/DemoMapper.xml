@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.wdtecn.mytest.mapper.DemoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.wdtecn.mytest.entity.Demo">
+        <id column="id" property="id" />
+        <result column="col_a" property="colA" />
+        <result column="col_b" property="colB" />
+        <result column="col_c" property="colC" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, col_a, col_b, col_c
+    </sql>
+
+    <!--查询所有-->
+    <select id="selectAll" resultType="com.wdtecn.mytest.entity.Demo">
+        select * from demo
+        <where>
+            <if test="colA != null and colA != ''">
+                AND col_a = #{colA}
+            </if>
+            <if test="colB != null">
+                AND col_b = #{colB}
+            </if>
+        </where>
+    </select>
+
+    <!--查询-->
+    <select id="getDemoInfo" resultType="com.wdtecn.mytest.entity.Demo">
+        select * from demo where id = #{id}
+    </select>
+
+    <!--增加-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="id" parameterType="com.wdtecn.mytest.entity.Demo">
+        insert into user
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="colA != null" >
+                col_a,
+            </if>
+            <if test="colB != null" >
+                col_b,
+            </if>
+
+            <if test="colC != null" >
+                col_c,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="colA != null" >
+                #{colA,jdbcType=VARCHAR},
+            </if>
+            <if test="colB != null" >
+                #{colB,jdbcType=VARCHAR},
+            </if>
+            <if test="colC != null" >
+                #{colC,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <!--根据id更改-->
+    <update id="update" parameterType="com.wdtecn.mytest.entity.Demo">
+        update demo
+        <set >
+            <if test="colA != null" >
+                col_a = #{colA,jdbcType=VARCHAR},
+            </if>
+            <if test="colB != null" >
+                col_b = #{colB,jdbcType=VARCHAR},
+            </if>
+            <if test="colC != null" >
+                col_c = #{colC,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <!--删除-->
+    <delete id="deleteById">
+        delete from demo where id=#{id}
+    </delete>
+
+</mapper>
